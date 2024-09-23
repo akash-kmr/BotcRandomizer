@@ -17,7 +17,7 @@ fun GenericSelectionDialog(
     onDismiss: () -> Unit,
     onSelect: (List<String>) -> Unit
 ) {
-    var currentSelection = remember { mutableStateListOf<String>().apply { addAll(selectedItems) } }
+    val currentSelection = remember { mutableStateListOf<String>().apply { addAll(selectedItems) } }
 
     AlertDialog(
         onDismissRequest = onDismiss,
