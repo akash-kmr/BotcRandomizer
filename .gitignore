@@ -1,0 +1,48 @@
+# Built application files
+*.apk
+*.ap_
+*.dex
+*.class
+
+# Gradle files
+.gradle/
+build/
+*/build/
+*/outputs/
+
+# Android Studio files
+.idea/
+*.iml
+*.hprof
+.DS_Store
+
+# Local configuration file (sdk path, etc.)
+local.properties
+
+# Android NDK
+.externalNativeBuild/
+.cxx/
+*.so
+*.a
+*.o
+
+# Miscellaneous
+*.log
+captures/
+*.orig
+*.lock
+
+# Gradle Wrapper
+gradle-wrapper.jar
+
+# Kotlin specific
+*.kotlin_metadata
+
+# IntelliJ specific
+out/
+
+# Other
+*.jar
+*.war
+*.ear
+
