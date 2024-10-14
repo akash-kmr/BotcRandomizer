@@ -1,33 +1,53 @@
 package com.example.botcrandomizer.ui
 
-import AssignmentResultTable
+import com.example.botcrandomizer.ui.components.AssignmentResultTable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.rememberScrollState
 import com.example.botcrandomizer.data.PlayerData
 import com.example.botcrandomizer.logic.assignRolesAndStatuses
 import com.example.botcrandomizer.model.AssignmentResult
+import com.example.botcrandomizer.utils.trimAndCapitalize
 
 @Composable
 fun PlayerRoleStatusSelectionScreen() {
-    // State for players, roles, statuses, and evil roles
-    val players = remember { mutableStateListOf<String>().apply { addAll(PlayerData.commonPlayers.map { it.trimAndCapitalize() }) } }
-    val roles = remember { mutableStateListOf<String>().apply { addAll(PlayerData.commonRoles.map { it.trimAndCapitalize() }) } }
-    val statuses = remember { mutableStateListOf<String>().apply { addAll(PlayerData.commonStatuses.map { it.trimAndCapitalize() }) } }
-    val evilRoles = remember { mutableStateListOf<String>().apply { addAll(PlayerData.commonEvilRoles.map { it.trimAndCapitalize() }) } }
 
-    // Transform PlayerData lists
-    val availablePlayers = PlayerData.players.map { it.trimAndCapitalize() }
-    val availableRoles = PlayerData.roles.map { it.trimAndCapitalize() }
-    val availableStatuses = PlayerData.statuses.map { it.trimAndCapitalize() }
-    val availableEvilRoles = PlayerData.evilRoles.map { it.trimAndCapitalize() }
+    // Mutable list for common players, roles, etc., extracting names from Entity
+    val players = remember {
+        mutableStateListOf<String>().apply {
+            addAll(PlayerData.players.filter { it.isCommon }.map { it.name.trimAndCapitalize() })
+        }
+    }
+
+    val roles = remember {
+        mutableStateListOf<String>().apply {
+            addAll(PlayerData.roles.filter { it.isCommon }.map { it.name.trimAndCapitalize() })
+        }
+    }
+
+    val statuses = remember {
+        mutableStateListOf<String>().apply {
+            addAll(PlayerData.statuses.filter { it.isCommon }.map { it.name.trimAndCapitalize() })
+        }
+    }
+
+    val evilRoles = remember {
+        mutableStateListOf<String>().apply {
+            addAll(PlayerData.evilRoles.filter { it.isCommon }.map { it.name.trimAndCapitalize() })
+        }
+    }
+
+    // Transform PlayerData lists for all available data (without the isCommon filter)
+    val availablePlayers = PlayerData.players.map { it.name.trimAndCapitalize() }
+    val availableRoles = PlayerData.roles.map { it.name.trimAndCapitalize() }
+    val availableStatuses = PlayerData.statuses.map { it.name.trimAndCapitalize() }
+    val availableEvilRoles = PlayerData.evilRoles.map { it.name.trimAndCapitalize() }
 
     // State for input text fields
     var newPlayer by remember { mutableStateOf("") }
@@ -170,9 +190,4 @@ fun PlayerRoleStatusSelectionScreen() {
             )
         }
     }
-}
-
-// Helper function to trim and capitalize the string
-fun String.trimAndCapitalize(): String {
-    return this.trim().uppercase() // Trimming and converting to uppercase
 }
