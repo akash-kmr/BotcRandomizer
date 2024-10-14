@@ -9,6 +9,10 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -20,6 +24,8 @@ import com.example.botcrandomizer.model.AssignmentResult
 fun AssignmentResultTable(results: List<AssignmentResult>) {
     val context = LocalContext.current
     val clipboardManager = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+
+    var playerStates by remember { mutableStateOf(results.map { it.isAlive }.toMutableList()) }
 
     Column(modifier = Modifier.fillMaxWidth()) {
         // Copy Button at the top
@@ -49,12 +55,19 @@ fun AssignmentResultTable(results: List<AssignmentResult>) {
 
         // Results cards
         results.forEach { result ->
+            val cardColor = when {
+                !result.isAlive && result.isEvil -> Color(0xFF724444) // Dull red for dead evil players
+                !result.isAlive -> Color(0xFF697A63) // Dull green for dead good players
+                result.isEvil -> Color(0xFFB22222) // Dark red for alive evil players
+                else -> Color(0xFF4CAF50) // Green for alive good players
+            }
+
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(8.dp),
                 elevation = CardDefaults.elevatedCardElevation(defaultElevation = 4.dp),
-                colors = CardDefaults.cardColors(containerColor = if (result.isEvil) Color(0xFFB22222) else Color(0xFF4CAF50)) // Dark red and green
+                colors = CardDefaults.cardColors(containerColor = cardColor)
             ) {
                 Row(
                     modifier = Modifier.padding(16.dp),
@@ -78,6 +91,14 @@ fun AssignmentResultTable(results: List<AssignmentResult>) {
                     if (result.isEvil) {
                         Text(
                             text = "Pretend: ${result.role}",
+                            color = Color.White,
+                            modifier = Modifier.padding(start = 8.dp)
+                        )
+                    }
+                    // Show a skull emoji if the player is dead
+                    if (!result.isAlive) {
+                        Text(
+                            text = "💀",
                             color = Color.White,
                             modifier = Modifier.padding(start = 8.dp)
                         )
