@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+    id("kotlin-kapt") // For annotation processing with Room
 }
 
 android {
@@ -50,6 +51,15 @@ android {
 }
 
 dependencies {
+    val roomVersion = "2.5.0" // Replace with the latest version if necessary
+
+    // Room dependencies
+    implementation("androidx.room:room-runtime:$roomVersion")
+    kapt("androidx.room:room-compiler:$roomVersion")
+    implementation("androidx.room:room-ktx:$roomVersion")
+
+    // Compose Navigation dependency
+    implementation("androidx.navigation:navigation-compose:2.7.3") // Navigation library
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
