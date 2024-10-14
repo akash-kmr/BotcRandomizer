@@ -26,14 +26,14 @@ object PlayerData {
                 Entity("Slayer", true),
                 Entity("Monk", true),
                 Entity("Undertaker", true),
-                Entity("Sage", false),
+                Entity("Sage", true),
                 Entity("Gambler", true),
                 Entity("Artist", true),
-                Entity("Philosopher", false),
-                Entity("Snakecharmer", false),
-                Entity("Saint", false),
-                Entity("Fool", false),
-                Entity("Soldier", false),
+                Entity("Philosopher", true),
+                Entity("Snakecharmer", true),
+                Entity("Saint", true),
+                Entity("Fool", true),
+                Entity("Soldier", true),
                 Entity("Grandmother", false),
                 Entity("Klutz", false),
                 Entity("Seamstress", false),
@@ -47,8 +47,8 @@ object PlayerData {
         val evilRoles = listOf(
                 Entity("Demon", true),
                 Entity("Poisoner", true),
-                Entity("Witch", true),
-                Entity("Chhota Evil", false),
+                Entity("Witch", false),
+                Entity("Chhota Evil", true),
                 Entity("Word evil", false)
         )
 }

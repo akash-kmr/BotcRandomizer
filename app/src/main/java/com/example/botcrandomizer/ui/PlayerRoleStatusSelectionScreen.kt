@@ -10,53 +10,57 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.runtime.saveable.Saver
+import androidx.compose.runtime.saveable.listSaver
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import com.example.botcrandomizer.data.PlayerData
 import com.example.botcrandomizer.logic.assignRolesAndStatuses
 import com.example.botcrandomizer.model.AssignmentResult
 import com.example.botcrandomizer.utils.trimAndCapitalize
 
 @Composable
-fun PlayerRoleStatusSelectionScreen() {
-
-    // Mutable list for common players, roles, etc., extracting names from Entity
-    val players = remember {
+fun PlayerRoleStatusSelectionScreen(
+    onAssignRoles: (List<AssignmentResult>) -> Unit // Callback for navigation
+) {
+    // Using simple mutable lists instead of SnapshotStateList
+    val players = rememberSaveable(        key = "players",
+        saver = stringListSaver) {
         mutableStateListOf<String>().apply {
             addAll(PlayerData.players.filter { it.isCommon }.map { it.name.trimAndCapitalize() })
         }
     }
 
-    val roles = remember {
+    val roles = rememberSaveable(        key = "roles",
+        saver = stringListSaver) {
         mutableStateListOf<String>().apply {
             addAll(PlayerData.roles.filter { it.isCommon }.map { it.name.trimAndCapitalize() })
         }
     }
 
-    val statuses = remember {
+    val statuses = rememberSaveable(        key = "statuses",
+        saver = stringListSaver) {
         mutableStateListOf<String>().apply {
             addAll(PlayerData.statuses.filter { it.isCommon }.map { it.name.trimAndCapitalize() })
         }
     }
 
-    val evilRoles = remember {
+    val evilRoles = rememberSaveable(key = "statuses", saver = stringListSaver) {
         mutableStateListOf<String>().apply {
             addAll(PlayerData.evilRoles.filter { it.isCommon }.map { it.name.trimAndCapitalize() })
         }
     }
 
-    // Transform PlayerData lists for all available data (without the isCommon filter)
-    val availablePlayers = PlayerData.players.map { it.name.trimAndCapitalize() }
-    val availableRoles = PlayerData.roles.map { it.name.trimAndCapitalize() }
-    val availableStatuses = PlayerData.statuses.map { it.name.trimAndCapitalize() }
-    val availableEvilRoles = PlayerData.evilRoles.map { it.name.trimAndCapitalize() }
-
     // State for input text fields
-    var newPlayer by remember { mutableStateOf("") }
-    var newRole by remember { mutableStateOf("") }
-    var newStatus by remember { mutableStateOf("") }
-    var newEvilRole by remember { mutableStateOf("") }
+    var newPlayer by rememberSaveable { mutableStateOf("") }
+    var newRole by rememberSaveable { mutableStateOf("") }
+    var newStatus by rememberSaveable { mutableStateOf("") }
+    var newEvilRole by rememberSaveable { mutableStateOf("") }
 
-    // State for assignment results
-    var assignmentResults by remember { mutableStateOf<List<AssignmentResult>>(emptyList()) }
+// State for assignment results as strings
+    var assignmentResults: List<AssignmentResult> = rememberSaveable(saver = assignmentResultSaver) {
+        mutableStateListOf<AssignmentResult>()  // Initialize with an empty mutable state list
+    }
 
     // Scroll state for vertical scrolling
     val scrollState = rememberScrollState()
@@ -86,7 +90,7 @@ fun PlayerRoleStatusSelectionScreen() {
                         newPlayer = ""
                     }
                 },
-                availableItems = availablePlayers // Example list for browse
+                availableItems = PlayerData.players.map { it.name.trimAndCapitalize() } // Example list for browse
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -104,7 +108,7 @@ fun PlayerRoleStatusSelectionScreen() {
                         newRole = ""
                     }
                 },
-                availableItems = availableRoles // Example roles
+                availableItems = PlayerData.roles.map { it.name.trimAndCapitalize() } // Example roles
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -122,7 +126,7 @@ fun PlayerRoleStatusSelectionScreen() {
                         newStatus = ""
                     }
                 },
-                availableItems = availableStatuses // Example statuses
+                availableItems = PlayerData.statuses.map { it.name.trimAndCapitalize() } // Example statuses
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -132,7 +136,7 @@ fun PlayerRoleStatusSelectionScreen() {
                 label = "Evil Roles",
                 selectedItems = evilRoles,
                 newItem = newEvilRole,
-                onNewItemChange = { newEvilRole = it},
+                onNewItemChange = { newEvilRole = it },
                 onAddItem = {
                     val processedNewEvilRole = newEvilRole.trimAndCapitalize() // Apply transformation
                     if (processedNewEvilRole.isNotBlank() && !evilRoles.contains(processedNewEvilRole)) {
@@ -140,7 +144,7 @@ fun PlayerRoleStatusSelectionScreen() {
                         newEvilRole = ""
                     }
                 },
-                availableItems = availableEvilRoles // Example evil roles
+                availableItems = PlayerData.evilRoles.map { it.name.trimAndCapitalize() } // Example evil roles
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -155,6 +159,8 @@ fun PlayerRoleStatusSelectionScreen() {
                         evilRoles = evilRoles,
                         assignStatusToEvil = false // or false based on your logic
                     )
+                    // Trigger navigation to AssignmentResultScreen with results
+                    onAssignRoles(assignmentResults)
                 },
                 modifier = Modifier.padding(vertical = 8.dp),
                 enabled = players.isNotEmpty() && roles.isNotEmpty() &&
@@ -191,3 +197,21 @@ fun PlayerRoleStatusSelectionScreen() {
         }
     }
 }
+
+
+
+// Create a custom Saver for SnapshotStateList<String> to convert it to a String
+val stringListSaver = Saver<SnapshotStateList<String>, String>(
+    save = { it.joinToString(",") },  // Convert List to comma-separated String
+    restore = { it.split(",").toSnapshotStateList() }  // Convert String back to SnapshotStateList
+)
+
+// Extension function to convert List<String> to SnapshotStateList<String>
+fun List<String>.toSnapshotStateList(): SnapshotStateList<String> {
+    return mutableStateListOf<String>().apply { addAll(this@toSnapshotStateList) }
+}
+
+val assignmentResultSaver = listSaver<MutableList<AssignmentResult>, String>(
+    save = { list -> list.map { it.toCsvString() } },
+    restore = { list -> list.map { AssignmentResult.fromCsvString(it) }.toMutableList() }
+)

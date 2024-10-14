@@ -19,13 +19,17 @@ class PlayerViewModel(private val repository: PlayerRepository) : ViewModel() {
 
     fun updatePlayer(player: PlayerEntity) {
         viewModelScope.launch {
-            repository.updatePlayer(player)
+            // Trim and capitalize the player's name before updating
+            val updatedPlayer = player.copy(name = player.name.trimAndCapitalize())
+            repository.updatePlayer(updatedPlayer)
         }
     }
 
     fun deletePlayer(player: PlayerEntity) {
         viewModelScope.launch {
-            repository.deletePlayer(player)
+            // Trim and capitalize the player's name before deleting
+            val playerToDelete = player.copy(name = player.name.trimAndCapitalize())
+            repository.deletePlayer(playerToDelete)
         }
     }
 }
